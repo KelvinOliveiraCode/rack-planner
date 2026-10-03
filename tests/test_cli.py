@@ -100,7 +100,7 @@ def test_planta_mostra_cada_u_ocupada() -> None:
     assert len(unidades) == 42
     assert "| 1 | patch-panel-48p |" in planta
     assert "| 42 |" in planta
-    # com 50U em 42U nao sobra U livre: e exatamente isso que a viola��ao ALTURA avisa
+    # com 50U em 42U nao sobra U livre: e exatamente isso que a violacao ALTURA avisa
     assert "livre" not in planta
 
 
