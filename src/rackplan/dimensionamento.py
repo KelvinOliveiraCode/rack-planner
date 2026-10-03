@@ -91,11 +91,11 @@ def verifica_altura(equipamentos: list[Equipamento], cap: CapacidadeRack) -> lis
                 nivel="GRAVE",
                 pt_br=(
                     f"altura estoura: {total}U em rack de {cap.altura_u}U "
-                    f"(faltam {cap.altura_u - total}U) / height overflow"
+                    f"({total - cap.altura_u}U acima do rack) / height overflow"
                 ),
                 en=(
                     f"height overflow: {total}U in a {cap.altura_u}U rack "
-                    f"({cap.altura_u - total}U short)"
+                    f"({total - cap.altura_u}U over the rack)"
                 ),
                 detalhe=f"altura_usada_u={total};altura_rack_u={cap.altura_u}",
             )
