@@ -1,0 +1,24 @@
+# Capacidade do rack do laboratorio. Valores ficticios.
+# Fictitious lab rack capacity. No real equipment is described.
+rack:
+  nome: rack-lab-01
+  altura_u: 42
+  carga_maxima_kg: 400
+  temperatura_ambiente_c: 24
+  temperatura_max_saida_c: 40
+  folga_recomendada: 0.20
+pdu:
+  nome: pdu-generica-8-circuitos
+  tensao_v: 127
+  circuitos: 8
+  corrente_por_circuito_a: 16.0
+  fases: 3
+  corrente_max_por_fase_a: 16.0
+  potencia_max_w: 4800
+termica:
+  fluxo_ar_m3h: 900
+  k_termico: 0.35
+  categorias_quentes:
+    - servidor
+    - storage
+    - ups
