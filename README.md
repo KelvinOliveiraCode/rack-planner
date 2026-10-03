@@ -69,7 +69,7 @@ Gerado localmente por `rackplan`. Valores e equipamentos sao ficticios.
 
 ## Avisos
 
-- [GRAVE] ALTURA: altura estoura: 50U em rack de 42U (faltam -8U) / height overflow
+- [GRAVE] ALTURA: altura estoura: 50U em rack de 42U (8U acima do rack) / height overflow
 - [GRAVE] PESO: peso estoura: 430.2 kg contra carga maxima de 400 kg, excesso de 30.2 kg / weight overflow
 - [GRAVE] POTENCIA: potencia estoura o PDU: 5000 W contra 4800 W de pdu-generica-8-circuitos, excesso de 200 W / power exceeds the PDU rating
 - [GRAVE] CORRENTE_FASE: corrente da fase 1 estoura: 17.3 A contra 16.0 A, excesso de 1.3 A / phase current overflow
@@ -154,7 +154,7 @@ Gerado localmente por `rackplan`. Valores e equipamentos sao ficticios.
 
 ## Avisos
 
-- [GRAVE] ALTURA: altura estoura: 50U em rack de 42U (faltam -8U) / height overflow
+- [GRAVE] ALTURA: altura estoura: 50U em rack de 42U (8U acima do rack) / height overflow
 - [GRAVE] PESO: peso estoura: 430.2 kg contra carga maxima de 400 kg, excesso de 30.2 kg / weight overflow
 - [GRAVE] POTENCIA: potencia estoura o PDU: 5000 W contra 4800 W de pdu-generica-8-circuitos, excesso de 200 W / power exceeds the PDU rating
 - [GRAVE] CORRENTE_FASE: corrente da fase 1 estoura: 17.3 A contra 16.0 A, excesso de 1.3 A / phase current overflow
