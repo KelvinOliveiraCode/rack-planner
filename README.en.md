@@ -1,150 +1,92 @@
-<div align="center">
-
-<img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python&logoColor=white" alt="Python">
-<img src="https://img.shields.io/badge/tests-54%20passing-brightgreen?style=flat-square" alt="Tests">
-<img src="https://img.shields.io/badge/coverage-96%25-brightgreen?style=flat-square" alt="Coverage">
-<img src="https://img.shields.io/badge/deps-PyYAML%20only-blue?style=flat-square" alt="Dependencies">
-<img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="License">
-<img src="https://img.shields.io/badge/CI-Windows-blue?style=flat-square" alt="CI">
-
-</div>
 
 # rack-planner
 
-CLI that plans a project rack — units (U), weight, power per phase, thermal dissipation, and limit warnings — with Markdown output.
+![language: Python](https://img.shields.io/badge/language-Python-blue?logo=python)   ![status: done](https://img.shields.io/badge/status-done-green)   ![license: MIT](https://img.shields.io/badge/license-MIT-blue)
 
-## Problem / Why it exists
+## Summary
 
-Rack planning usually checks rack height in U, but rarely checks floor weight, PDU power, per-phase amperage, and outlet air temperature together. A layout that fits on paper can trip breakers in the server room. rack-planner audits the four limits — U, weight, PDU power, and per-phase current — plus the thermal model, in a single run, before any equipment is installed, with no proprietary tool dependency.
+Python project developed as a software engineering study. Planejador de rack: altura em U, peso, amperagem por fase e temperatura estimada
+
+## Problem / why it exists
+
+The project addresses a practical scope and automates a task that, done manually, is repetitive and error-prone. The focus is on turning data or processes into reliable output, with readable and testable code.
+
+## Architecture
+
+The code is organized by responsibility:
+
+- Input: reading a file, API, user input or data capture (depending on the module).
+- Processing: pure functions or classes that apply business rules, transformation or analysis over the input data.
+- Output: writing a file, printing to terminal, HTTP response or report generation.
+
+When applicable, the application separates the data access layer from the business logic layer, so changing the data source does not require rewriting the rules.
+
+## Technologies
+
+- Python 3.x
+- pytest
+- pytest-cov
+- PyYAML
+- -e
+
+- GitHub Actions (CI): workflow(s) in `.github/workflows/`
+
+The repository contains automated tests.
 
 ## What it does
 
-- Reads equipment and rack capacity from YAML files (default: dados/equipamentos-rack.yaml and dados/capacidade-rack.yaml).
-- Adds up used U, total weight, total power, power and current per phase and per circuit.
-- Estimates outlet air temperature with the linear model T_out = T_ambient + P_W / (k * Q).
-- Emits bilingual warnings (PT-BR and EN) when a limit is exceeded (CRITICAL) or compromised (WARNING): height, weight, PDU power, per-phase current, per-circuit current, temperature, airflow, U slack, U overlap, and slack between heat sources.
-- Generates a Markdown report with summary, per-phase electrical data, per-circuit load, U-by-U layout (all rack U), and warnings.
-- Returns exit code 0 with no violation, 1 with a limit violation, 2 on input error, allowing the command to be chained in CI.
-- Supports JSON output with the --json option (totals and violation flag).
-- Includes the alocar() function, which repositions equipment according to project policy (redundant power supply first, descending weight, 1U slack between heat sources) and warns if any item does not fit in the rack.
-
-## Stack
-
-- Python >= 3.10
-- PyYAML >= 6.0 (only runtime dependency)
-- pytest >= 7.4 and pytest-cov >= 4.1 (development only)
-- Packaging with setuptools, src/ layout
-- CI: GitHub Actions on windows-latest, Python 3.11
-
-## How it works
-
-- modelo.py: dataclasses Equipment, Pdu, and RackCapacity; YAML loading and validation (required fields, valid categories, non-negative numbers, unique names). Input error raises ValidationError and the CLI exits with 2.
-- dimensionamento.py: U, weight, and power sums; occupied and free units; overlaps; verify_height (CRITICAL above rack height, WARNING above usable height with 20% slack), verify_weight, and verify_overlap.
-- ocupacao.py: alocar() applies the allocation policy and raises ValueError if any equipment exceeds rack height; verificar_folga_entre_fontes() warns about heat sources without 1U slack; resumo_de_ocupacao() assembles the report figures.
-- eletrica.py: current = power / voltage; verify_power (PDU), verify_current_per_phase (per-phase limit), and verify_circuit (nominal circuit current, WARNING).
-- termica.py: estimated_temperature() with the dimensionless model; verify_thermal (CRITICAL above outlet temperature target); airflow_alerts (WARNING below 0.25 m3/h per W).
-- relatorio.py: deterministic Markdown report in PT-BR; tem_violacao() indicates whether at least one CRITICAL warning exists.
-- cli.py: rackplan entry point; planejar subcommand; exit codes 0/1/2.
-
-Example with the included data (25 equipment items, fictional, generated by tools/gerar_dados.py):
-
-```
-$env:PYTHONPATH="$PWD\src"
-python -m rackplan planejar dados\equipamentos-rack.yaml --capacidade dados\capacidade-rack.yaml --saida exemplos\planta-rack.md
-```
-
-Generated report summary:
-
-- Rack height: 42U
-- Used height: 50U
-- Target height with 20% slack: 33U
-- Free U: 0
-- Total weight: 430.2 kg of 400 kg
-- Total power: 5000 W of 4800 W
-- Estimated outlet temperature: 39.9 C (target 40.0 C, ambient 24.0 C)
-
-Electrical per phase (127 V):
-
-| phase | power_w | current_a | limit_a |
-| --: | --: | --: | --: |
-| 1 | 2200 | 17.3 | 16.0 |
-| 2 | 1200 | 9.4 | 16.0 |
-| 3 | 1600 | 12.6 | 16.0 |
-
-Warnings emitted: [CRITICAL] HEIGHT, [CRITICAL] WEIGHT, [CRITICAL] POWER, [CRITICAL] CURRENT_PHASE. The CLI exits with 1 (expected behavior: the test values were intentionally set above the limits to exercise the four CRITICAL checks).
+Planejador de rack: altura em U, peso, amperagem por fase e temperatura estimada
 
 ## How to run
 
-Prerequisite: Python 3.10 or higher.
+Requirements: Python 3.x installed.
 
-```powershell
-# 1. Virtual environment and dependencies
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+```
+# install dependencies (if requirements.txt exists)
 pip install -r requirements.txt
 
-# 2. Tests
-python -m pytest tests/ -q
+# run
+python main.py
 
-# 3. Run (PYTHONPATH required because the package is in src/)
-$env:PYTHONPATH="$PWD\src"
-python -m rackplan planejar dados\equipamentos-rack.yaml --capacidade dados\capacidade-rack.yaml --saida exemplos\planta-rack.md
+# run tests
+pytest
 ```
-
-Alternative, installing the package:
-
-```
-pip install -e .
-rackplan planejar dados\equipamentos-rack.yaml --capacidade dados\capacidade-rack.yaml --saida exemplos\planta-rack.md
-```
-
-CLI options: --equipamentos/-e (equipment YAML), --capacidade/-c (default dados/capacidade-rack.yaml), --saida/-s (output Markdown file; default stdout) and --json (prints totals as JSON).
 
 ## Project structure
 
-```
-rack-planner/
-├── dados/               # input YAML: equipment and capacity (fictional, generated by tools/gerar_dados.py)
-├── docs/                # notes: como-dimensionar-um-rack.md, circuito-reservado.md
-├── exemplos/            # planta-rack.md: example report output
-├── src/rackplan/        # package (src/ layout)
-│   ├── __init__.py, __main__.py, cli.py   # entry point and CLI
-│   ├── modelo.py        # dataclasses, YAML loading and validation
-│   ├── ocupacao.py      # U allocation, slack between heat sources
-│   ├── dimensionamento.py   # U, weight, power sums; height, weight, overlap checks
-│   ├── eletrica.py      # current, power per phase and circuit, PDU limits
-│   ├── termica.py       # estimated outlet temperature and airflow alerts
-│   ├── aviso.py         # bilingual PT-BR/EN warnings
-│   └── relatorio.py     # deterministic Markdown report
-├── tests/               # pytest tests (54 tests)
-├── tools/               # gerar_dados.py, verificar_encoding.py
-├── pyproject.toml, requirements.txt
-└── LICENSE              # MIT
-```
+- src/ (10 arquivo(s))
+- tests/ (5 arquivo(s))
+- dados/ (2 arquivo(s))
+- docs/ (2 arquivo(s))
+- tools/ (2 arquivo(s))
+- .github/ (1 arquivo(s))
+- exemplos/ (1 arquivo(s))
+- .gitattributes, .gitignore, LICENSE, pyproject.toml, README.en.md, README.md, requirements.txt
+
 
 ## Trade-offs and decisions
 
-- Watt budget is different from ampere budget. At 127 V, 2200 W on phase 1 yields 17.3 A, above the 16 A breaker, although the 5000 W total exceeds the PDU for another reason. The check is per phase because an imbalance trips the breaker before the global limit.
-- `verifica_*` only reports; `alocar` repositions. They are distinct responsibilities: `alocar` applies the policy (redundant power supply first, descending weight, 1U slack between heat sources) and raises "does not fit in the rack" if it does not fit, without inventing a position. It is not a budget optimizer; the budget comes from the checks.
-- The thermal model is dimensionless (k = 0.35) and leaves the computation open: with the test data, 39.9 C against the 40.0 C target, i.e. 0.1 C of margin. A small change in airflow or k flips the verdict, instead of returning an abstract OK.
-- Exit code 1 with violation is project success, not tool error: it allows chaining the command in CI and failing the build without false positives.
-- Input data is fictional and deterministic: 25 equipment items, 42U, 400 kg, 4800 W, generated by tools/gerar_dados.py. It does not describe real equipment.
-- Single runtime dependency (PyYAML) to ease installation in restricted environments.
+- Standard library whenever possible; external dependencies only when the benefit justifies maintenance.
+- Executable scripts straight away, no complex build step, to ease reproduction.
+- Logic separated from input/output to keep processing functions testable.
 
 ## Known limitations
 
-- Does not measure real temperature: estimates outlet air with a dimensionless linear model at steady state; does not model heating or cooling curves.
-- Does not know real PDU or breaker models: limits come from the capacity YAML.
-- Does not replace an electrical project signed by a qualified professional (CREA).
-- Does not check grounding standards, cable organization, or physical path redundancy.
-- Does not optimize U allocation: `alocar` only applies project policy.
-- Fictional values (25 equipment items, 42U, 400 kg, 4800 W).
-- Does not calculate financial cost or equipment lead time.
+- Limited scope to the described slice; it is not a complete platform.
+- Depends on Python 3.x at runtime.
+
+
+## Tests
+
+```
+pytest
+```
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Distributed under the MIT License. See the `LICENSE` file in this repository.
 
 ## Author
 
-Kelvin Oliveira — https://github.com/KelvinOliveiraCode · portfolio: https://kelvinoliveiracode.github.io/portfolio/
+Kelvin Oliveira, https://github.com/KelvinOliveiraCode
+Portfolio: https://kelvinoliveiracode.github.io/portfolio/
