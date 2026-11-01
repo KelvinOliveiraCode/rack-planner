@@ -1,118 +1,79 @@
 # rack-planner
 
-<div align="center">
-
 **English** · [Português (Brasil)](README.md)
 
-</div>
-
-[![Python 3](https://img.shields.io/badge/Python-3.x-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/) [![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat-square&logo=scikit-learn)](https://scikit-learn.org/) [![pandas](https://img.shields.io/badge/pandas-150458?style=flat-square&logo=pandas)](https://pandas.pydata.org/) [![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=flat-square&logo=pytest)](https://docs.pytest.org/) [![MIT License](https://img.shields.io/badge/License-MIT-f4c430?style=flat-square)](LICENSE)
-
-### Planejador de rack: altura em U, peso, amperagem por fase e temperatura estimada
-
----
+[![Python 3](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](#) [![PyYAML](https://img.shields.io/badge/PyYAML-only%20dep-3776AB?style=flat-square)](#) [![pytest](https://img.shields.io/badge/pytest-54%20tests-0A9EDC?style=flat-square&logo=pytest)](#) [![MIT License](https://img.shields.io/badge/License-MIT-f4c430?style=flat-square)](LICENSE)
 
 ## What it is
 
-Planejador de rack: altura em U, peso, amperagem por fase e temperatura estimada
+**A rack planner**: it sizes equipment placement (U slots, weight, power), checks electrical requirements (per-phase current, circuits), thermal (exhaust temperature, airflow), occupancy (best-fit allocation, overlap detection) and generates a visual rack report with violation warnings. It is an educational datacenter/infra lab.
 
----
+## Status
 
-## Quick Start
+An educational lab, working and tested (54 tests).
 
-```bash
-# Clone and enter
-git clone https://github.com/KelvinOliveiraCode/<repo>.git
-cd <repo>
+## Features
 
-# Install dependencies
-# No requirements.txt detected
+- **Model** (`modelo.py`): `Equipamento`, `Pdu`, `CapacidadeRack`, `carregar_equipamentos` and `carregar_capacidade` (YAML).
+- **Sizing** (`dimensionamento.py`): `soma_u`, `soma_peso`, `soma_potencia`, `sobreposicoes`, `verifica_altura/peso`.
+- **Electrical** (`eletrica.py`): `corrente_de_carga`, `corrente_por_fase`, `potencia_por_fase`, `circuitos_usados`, `verifica_corrente_por_fase/circuito/eletrica`.
+- **Thermal** (`termica.py`): `temperatura_saida`, `temperatura_estimada`, `verifica_termica`, `alertas_de_fluxo`.
+- **Occupancy** (`ocupacao.py`): `alocar` (best-fit), `verificar_folga_entre_fontes`, `resumo_de_ocupacao`.
+- **Report** (`relatorio.py`): `_planta` (visual), `gerar_relatorio` with `Aviso` per violation, `tem_violacao`.
+- **Warnings** (`aviso.py`): `Aviso` and `formatar`.
+- **CLI** (`rackplan`).
 
-# Run the project
-python main.py
+## Architecture
 
-# Run tests
-pytest
+A `rackplan` package with `modelo`, `dimensionamento`, `eletrica`, `termica`, `ocupacao`, `relatorio`, `aviso` and `cli`.
+
+## Stack
+
+- Python ≥ 3.10, PyYAML ≥ 6.0
+- pytest (dev)
+
+## Repository layout
+
+```
+rack-planner/
+├── src/rackplan/    # modelo · dimensionamento · eletrica · termica · ocupacao · relatorio · aviso · cli
+├── dados/
+├── tests/           # 54 tests
+└── LICENSE          # MIT
 ```
 
-## How it works
+## Prerequisites and installation
 
-Estrutura limpa e modular com separação de responsabilidades.
+```bash
+pip install -e .
+```
 
----
+## How to run
 
-## Capabilities
+```bash
+rackplan <subcmd> dados/
+```
 
-| Capacidade | Descrição |
-|------------|-------------|
-| Carregamento de Dados | Auto-download do TensorFlow creditcard.csv (284k transações) com cache local |
-| EDA e Visualização | Distribuição de classes, histogramas de Amount, heatmaps de correlação (matplotlib/seaborn) |
-| Pré-processamento | RobustScaler em Amount/Time, split estratificado, remoção de duplicatas |
-| Balanceamento | SMOTE oversampling (fallback: class_weight="balanced") |
-| Modelagem | LogisticRegression, RandomForest, ExtraTrees com RandomizedSearchCV (StratifiedKFold) |
-| Métricas | Accuracy, Precision, Recall, F1, ROC AUC, Specificity, Confusion Matrix |
-| Seleção | Score ponderado: Recall 40% + F1 30% + Precision 20% + Accuracy 10% |
-| Persistência | Serialização joblib para modelo, scaler e resultados completos |
+## Tests and quality
 
+```bash
+PYTHONPATH=src python -m pytest tests/   # 54 passed
+```
 
----
+## Technical decisions
 
+- Best-fit allocation: fits the largest-U equipment first.
+- Per-phase electrical check (single/three-phase) + circuit count.
 
+## Known limitations
 
----
+- No liquid cooling (air only: exhaust temperature × airflow).
+- Fixed voltage (127/220 V) — configurable in YAML.
 
-## FAQ
+## Development process
 
-<details>
-<summary><strong>What is this project?</strong></summary>
+An individual project by Kelvin Oliveira, built with orchestrated AI agents and reviewed by the author.
 
-A Python study/project demonstrating core concepts.
+## License and author
 
-</details>
-
-<details>
-<summary><strong>How do I run it?</strong></summary>
-
-See [Quick Start](#quick-start) for copy-paste commands.
-
-</details>
-
-<details>
-<summary><strong>Are there tests?</strong></summary>
-
-No automated tests in this repository.
-
-</details>
-
-<details>
-<summary><strong>Can I use this in production?</strong></summary>
-
-This is a **study/portfolio project**. Review and harden (auth, persistence, monitoring, etc.) before production use.
-
-</details>
-
-
-
----
-
-## Documentation
-
-- **Source Code** ,  Browse the `src/` directory for implementation details
-- **API Reference** ,  Inline docstrings + type hints
-- **Architecture Diagram** ,  See [architecture.mermaid](docs/architecture.mermaid) (if present)
-- **Changelog** ,  [CHANGELOG.md](CHANGELOG.md) (if present)
-- **Contributing** ,  [CONTRIBUTING.md](CONTRIBUTING.md) (if present)
-
-## License
-
-[MIT](LICENSE) ,  Kelvin Oliveira
-
----
-
-<div align="center">
-
-**Built with** · Python 3 + scikit-learn + pandas
-
-**Author** · [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [Portfolio](https://kelvinoliveiracode.github.io/portfolio/)
-
-</div>
+MIT — Copyright (c) 2026 Kelvin Rebelo de Oliveira. Author: [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [Portfolio](https://kelvinoliveiracode.github.io/portfolio/)
